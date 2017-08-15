@@ -5,7 +5,10 @@ ASSETS=$(shell find src/github.com/etsy/hound/ui/assets)
 bin/go-bindata:
 	GOPATH=$(shell pwd) go get github.com/jteeuwen/go-bindata/...
 
-src/github.com/etsy/hound/ui/bindata.go: bin/go-bindata $(ASSETS)
+src/golang.org/x/sys/unix:
+	GOPATH=$(shell pwd) go get golang.org/x/sys/unix
+
+src/github.com/etsy/hound/ui/bindata.go: bin/go-bindata src/golang.org/x/sys/unix $(ASSETS)
 	mkdir -p build/ui
 	rsync -r --exclude '*.js' src/github.com/etsy/hound/ui/assets/* build/ui
 	jsx --no-cache-dir src/github.com/etsy/hound/ui/assets/js build/ui/js

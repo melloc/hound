@@ -2,14 +2,14 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-// +build darwin freebsd openbsd netbsd
+// +build darwin freebsd openbsd netbsd solaris
 
 package index
 
 import (
+  "golang.org/x/sys/unix"
   "log"
   "os"
-  "syscall"
 )
 
 func mmapFile(f *os.File) mmapData {
@@ -25,7 +25,7 @@ func mmapFile(f *os.File) mmapData {
   if n == 0 {
     return mmapData{f, nil, nil}
   }
-  data, err := syscall.Mmap(int(f.Fd()), 0, (n+4095)&^4095, syscall.PROT_READ, syscall.MAP_PRIVATE)
+  data, err := unix.Mmap(int(f.Fd()), 0, (n+4095)&^4095, unix.PROT_READ, unix.MAP_PRIVATE)
   if err != nil {
     log.Fatalf("mmap %s: %v", f.Name(), err)
   }
@@ -33,7 +33,7 @@ func mmapFile(f *os.File) mmapData {
 }
 
 func unmmapFile(m *mmapData) error {
-  if err := syscall.Munmap(m.o); err != nil {
+  if err := unix.Munmap(m.o); err != nil {
     return err
   }
 
@@ -41,5 +41,5 @@ func unmmapFile(m *mmapData) error {
 }
 
 func unmmap(d []byte) error {
-  return syscall.Munmap(d)
+  return unix.Munmap(d)
 }
